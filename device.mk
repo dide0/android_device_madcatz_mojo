@@ -104,4 +104,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libstlport \
 
+# EGL
+PRODUCT_PACKAGES += \
+    libdgv1
+
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/config/config-bcm.mk)
