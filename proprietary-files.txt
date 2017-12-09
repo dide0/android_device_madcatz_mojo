@@ -6,6 +6,8 @@ lib/libnvcapaudioservice.so
 lib/libnvcapclk.so
 lib/libtinyalsa.so
 
+bin/nvcgcserver.so
+
 # BT/Wifi firmware
 bin/mft_data
 bin/wbtmiscwriter.sh
