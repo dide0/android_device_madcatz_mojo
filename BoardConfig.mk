@@ -95,10 +95,3 @@ TW_BRIGHTNESS_PATH := "/brightness"
 TW_EXCLUDE_SUPERSU := true
 TW_NO_SCREEN_TIMEOUT := true
 TW_NO_CPU_TEMP := true
-
-# Multirom
-MR_DPI := hdpi
-MR_DPI_FONT := 216
-MR_FSTAB := device/madcatz/mojo/multirom/mrom.fstab
-MR_INIT_DEVICES := device/madcatz/mojo/multirom/mr_init_devices.c
-MR_KEXEC_MEM_MIN := 0x85000000

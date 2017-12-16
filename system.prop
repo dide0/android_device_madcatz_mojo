@@ -6,7 +6,7 @@ drm.service.enabled=true
 ro.opengles.version = 131072
 wifi.interface=wlan0
 ap.interface=wlan0
-ro.sf.lcd_density=213
+ro.sf.lcd_density=240
 
 # from dalmore, check nvidia
 persist.tegra.nvmmlite = 1
@@ -46,3 +46,6 @@ ro.zygote.disable_gl_preload=true
 
 # Set carrier
 ro.carrier=wifi-only
+
+#enable adb
+persist.sys.usb.config=adb
