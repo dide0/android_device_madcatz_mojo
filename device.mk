@@ -16,10 +16,10 @@
 
 
 # Device uses high-density artwork where available
-PRODUCT_AAPT_CONFIG += mdpi hdpi xhdpi
-PRODUCT_AAPT_PREF_CONFIG := hdpi
+PRODUCT_AAPT_CONFIG := normal
+PRODUCT_AAPT_PREF_CONFIG := tvdpi
 
-# Bootanimation
+# Boot Animation
 PRODUCT_COPY_FILES += \
     device/madcatz/mojo/bootanimation.zip:system/media/bootanimation.zip
 
