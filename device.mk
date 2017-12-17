@@ -95,13 +95,12 @@ PRODUCT_PACKAGES += \
     ueventd.mojo.rc
 
 # USB
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.isUsbOtgEnabled=1
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
 # Wifi
 PRODUCT_PACKAGES += \
+    dhcpcd.conf \
     hostapd \
     wpa_supplicant \
     wpa_supplicant.conf
