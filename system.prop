@@ -49,4 +49,6 @@ ro.carrier=wifi-only
 
 #enable adb
 persist.sys.usb.config=adb
+ro.adb.secure=0
+ro.secure=0
 
