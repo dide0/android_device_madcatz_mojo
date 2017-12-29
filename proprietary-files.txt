@@ -18,12 +18,12 @@ vendor/firmware/bcm43241/fw_bcmdhd.bin
 
 # DRM
 lib/libdrmdecrypt.so
-lib/liboemcrypto.so
-vendor/lib/drm/libdrmwvmplugin.so
-vendor/lib/libwvdrm_L1.so
-vendor/lib/libwvm.so
-vendor/lib/libWVStreamControlAPI_L1.so
-vendor/lib/mediadrm/libwvdrmengine.so
+#lib/liboemcrypto.so
+#vendor/lib/drm/libdrmwvmplugin.so
+#vendor/lib/libwvdrm_L1.so
+#vendor/lib/libwvm.so
+#vendor/lib/libWVStreamControlAPI_L1.so
+#vendor/lib/mediadrm/libwvdrmengine.so
 
 # Graphics
 etc/enctune.conf

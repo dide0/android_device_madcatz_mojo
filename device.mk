@@ -19,6 +19,8 @@
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := tvdpi
 
+PRODUCT_IS_ATV := true
+
 # Boot Animation
 PRODUCT_COPY_FILES += \
     device/madcatz/mojo/bootanimation.zip:system/media/bootanimation.zip
@@ -27,12 +29,10 @@ $(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-he
 
 $(call inherit-product-if-exists, vendor/madcatz/mojo/mojo-vendor.mk)
 
+$(call inherit-product-if-exists, vendor/google/atv/atv-vendor.mk)
+
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += device/madcatz/mojo/overlay
-
-# ADB over TCP
-#PRODUCT_PROPERTY_OVERRIDES += \
-#    service.adb.tcp.port=5555
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -58,9 +58,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-    $(LOCAL_PATH)/media/media_codecs_performance.xml:system/etc/media_codecs_performance.xml \
     $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml
+
+
 
 # DRM
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -73,20 +74,19 @@ PRODUCT_CHARACTERISTICS := tv
 # Permissions
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
+    frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml \
     frameworks/native/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
+    $(LOCAL_PATH)/permissions/com.google.android.tv.installed.xml:system/etc/permissions/com.google.android.tv.installed.xml \
     $(LOCAL_PATH)/permissions/com.nvidia.nvsi.xml:system/etc/permissions/com.nvidia.nvsi.xml \
+    $(LOCAL_PATH)/permissions/nrdp.xml:system/etc/permissions/nrdp.xml \
     $(LOCAL_PATH)/permissions/mojo_hardware.xml:system/etc/permissions/mojo_hardware.xml \
-$(LOCAL_PATH)/permissions/com.google.android.tv.installed.xml:system/etc/permissions/com.google.android.tv.installed.xml \
-$(LOCAL_PATH)/permissions/android.hardware.type.television.xml:system/etc/permissions/android.hardware.type.television.xml \
-$(LOCAL_PATH)/permissions/nrdp.xml:system/etc/permissions/nrdp.xml \
-$(LOCAL_PATH)/permissions/mojo_core_hardware.xml:system/etc/permissions/mojo_core_hardware.xml \
-frameworks/native/data/etc/android.software.app_widgets.xml:system/etc/permissions/android.software.app_widgets.xml
+    $(LOCAL_PATH)/permissions/tv_core_hardware.xml:system/etc/permissions/tv_core_hardware.xml \
+    frameworks/native/data/etc/android.software.app_widgets.xml:system/etc/permissions/android.software.app_widgets.xml
 
 # Ramdisk
 PRODUCT_PACKAGES += \
@@ -97,6 +97,24 @@ PRODUCT_PACKAGES += \
     init.ussrd.rc \
     power.mojo.rc \
     ueventd.mojo.rc
+
+# Adb over TCP
+PRODUCT_PROPERTY_OVERRIDES += \
+    service.adb.tcp.port=5555
+
+# Debugging
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.adb.secure=0 \
+    ro.secure=0 \
+    ro.debuggable=1
+
+# TV-specific Apps/Packages
+PRODUCT_PACKAGES += \
+    AppDrawer \
+    CMLeanbackCustomizer \
+    TvProvider \
+    TvSettings \
+    tv_input.default
 
 # USB
 PRODUCT_PACKAGES += \
