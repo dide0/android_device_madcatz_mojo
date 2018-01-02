@@ -2,11 +2,13 @@
 # system.prop for mojo
 #
 
-drm.service.enabled=true
 ro.opengles.version = 131072
 wifi.interface=wlan0
 ap.interface=wlan0
-ro.sf.lcd_density=240
+ro.sf.lcd_density=213
+
+# GPU producer to CPU consumer not supported
+ro.bq.gpu_to_cpu_unsupported=1
 
 # from dalmore, check nvidia
 persist.tegra.nvmmlite = 1
@@ -33,7 +35,6 @@ ro.hwui.layer_cache_size=32.0
 ro.hwui.gradient_cache_size=0.8
 ro.hwui.path_cache_size=24.0
 ro.hwui.shape_cache_size=3.0
-ro.hwui.r_buffer_cache_size=10.0
 ro.hwui.drop_shadow_cache_size=4.0
 ro.hwui.text_small_cache_width=1024
 ro.hwui.text_small_cache_height=512
@@ -46,9 +47,3 @@ ro.zygote.disable_gl_preload=true
 
 # Set carrier
 ro.carrier=wifi-only
-
-#enable adb
-persist.sys.usb.config=adb
-ro.adb.secure=0
-ro.secure=0
-

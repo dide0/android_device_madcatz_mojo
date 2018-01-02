@@ -1,60 +1,29 @@
-# Copyright (c) 2011-2013 NVIDIA Corporation.  All Rights Reserved.
+#Copyright (c) 2011-2013 NVIDIA Corporation.  All Rights Reserved.
 #
-# NVIDIA Corporation and its licensors retain all intellectual property and
-# proprietary rights in and to this software and related documentation.  Any
-# use, reproduction, disclosure or distribution of this software and related
-# documentation without an express license agreement from NVIDIA Corporation
-# is strictly prohibited.
+#NVIDIA Corporation and its licensors retain all intellectual property and
+#proprietary rights in and to this software and related documentation.  Any
+#use, reproduction, disclosure or distribution of this software and related
+#documentation without an express license agreement from NVIDIA Corporation
+#is strictly prohibited.
 
 import init.mojo.usb.rc
 
-on early-init
-    mount debugfs debugfs /sys/kernel/debug
+#on early-init
+#    mount debugfs debugfs /sys/kernel/debug
 
 on init
-    mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage/emulated 0555 root root
 
-    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
-    mkdir /storage/sdcard1 0700 root root
-
-    # create directory for mounting usb drives
-    mkdir /mnt/media_rw/usbdrive1 0700 media_rw media_rw
-    mkdir /mnt/media_rw/usbdrive2 0700 media_rw media_rw
-    mkdir /storage/usbdrive1 0700 root root
-    mkdir /storage/usbdrive2 0700 root root
-
-    export EXTERNAL_STORAGE /storage/emulated/legacy
-    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
-    export EMULATED_STORAGE_TARGET /storage/emulated
-    export SECONDARY_STORAGE /storage/sdcard1:/storage/usbdrive1:/storage/usbdrive2
+    export LD_SHIM_LIBS "/system/lib/libnvcpud.so|libshim_vectorimpl.so:/system/lib/hw/audio_policy.tegra.so|libshim_vectorimpl.so"
 
     # Support legacy paths
-    symlink /storage/emulated/legacy /sdcard
-    symlink /storage/emulated/legacy /mnt/sdcard
-    symlink /storage/emulated/legacy /storage/sdcard0
-    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
-    symlink /storage/sdcard1 /extSdCard
-    symlink /storage/sdcard1 /mnt/extSdCard
-    symlink /storage/sdcard1 /external_sd
-    symlink /storage/usbdrive1 /usbdrive1
-    symlink /storage/usbdrive1 /mnt/usbdrive1
-    symlink /storage/usbdrive2 /usbdrive2
-    symlink /storage/usbdrive2 /mnt/usbdrive2
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
 
     # Create directory for mft
     mkdir /mft  0777 system system
 
 on fs
-    setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
-    setprop ro.crypto.umount_sd false
-    setprop ro.crypto.fuse_sdcard true
     mount_all /fstab.mojo
-
-    # Configure and enable KSM
-    write /sys/kernel/mm/ksm/pages_to_scan 100
-    write /sys/kernel/mm/ksm/sleep_millisecs 500
-    write /sys/kernel/mm/ksm/run 1
 
 on post-fs-data
     mkdir /data/misc/wifi/conf 0777 wifi wifi
@@ -65,7 +34,13 @@ on post-fs-data
 
     mkdir /data/misc/wminput 0776 system system
 
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/smc 0770 drmrpc drmrpc
+    mkdir /data/DxDrm 0770 media media
+    chown drmrpc drmrpc /data/smc/counter.bin
+    chown drmrpc drmrpc /data/smc/storage.bin
+    chown drmrpc drmrpc /data/smc/system.bin
+    copy /system/etc/DxDrmConfig.txt /data/DxDrm/DxDrmConfig.txt
+    chown media media /data/DxDrm/DxDrmConfig.txt
 
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
@@ -97,32 +72,14 @@ on boot
     chown bluetooth net_bt_stack /data/misc/bluetooth
     setprop ro.bt.bdaddr_path "/data/misc/bluetooth/bdaddr"
 
-    # Audio
-    chmod 0664 /sys/power/suspend/mode
-    chown system audio /sys/power/suspend/mode
-
     # CMU
     chown system system /sys/class/graphics/fb0/device/cmu_enable
     chown system system /sys/class/graphics/fb1/device/cmu_enable
 
-    # NVDPS
-    chown system system /sys/class/graphics/fb0/device/nvdps
-
-    # Power
+    # power
     chown system system /sys/kernel/tegra_cap/core_cap_level
     chown system system /sys/kernel/tegra_cap/core_cap_state
     chown system system /sys/module/cpu_tegra/parameters/cpu_user_cap
-
-    # Cpu maximum voltage control settings
-    chown system system /sys/kernel/tegra_cpu_volt_cap/volt
-    chown system system /sys/kernel/tegra_cpu_volt_cap/capping_state
-
-    # Voltage monitor settings
-    chown system system /sys/power/tegra_rail_stats
-
-    # Temperature monitor settings
-    chown system system /sys/class/thermal
-    chown system system /sys/class/thermal/thermal_zone5/trip_point_0_temp
 
     # Power management settings
     write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp 0
@@ -132,19 +89,22 @@ on boot
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor conservative
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor conservative
 
-    write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 85
-    write /sys/devices/system/cpu/cpufreq/conservative/down_threshold 65
-    write /sys/devices/system/cpu/cpufreq/conservative/freq_step 1
+    write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 95
+    write /sys/devices/system/cpu/cpufreq/conservative/down_threshold 50
+    write /sys/devices/system/cpu/cpufreq/conservative/freq_step 3
 
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpufreq/interactive/boost_factor 2
-    write /sys/devices/system/cpu/cpufreq/interactive/max_boost 250000
-    write /sys/devices/system/cpu/cpufreq/interactive/sustain_load 80
-    write /sys/devices/system/cpu/cpufreq/interactive/io_busy_threshold 16
-    write /sys/devices/system/cpu/cpufreq/interactive/midrange_max_boost 250000
+    write /sys/devices/system/cpu/cpufreq/interactive/sustain_load 85
+    write /sys/devices/system/cpu/cpufreq/interactive/midrange_freq 1500000
+    write /sys/devices/system/cpu/cpufreq/interactive/midrange_max_boost 110000
+    write /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load 90
+
+    write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp 0
+    write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/down_delay 500
     write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/enable 1
     write /sys/devices/system/cpu/cpuquiet/current_governor runnable
     write /sys/module/cpuidle_t11x/parameters/cpu_power_gating_in_idle 31
@@ -152,6 +112,7 @@ on boot
     write /sys/module/cpuidle/parameters/power_down_in_idle 1
 
     chown system system /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chown system system /sys/devices/tegradc.0/enable
     chown system system /sys/devices/tegradc.1/enable
@@ -178,27 +139,24 @@ on boot
     write /data/misc/wminput/connected 0
     chmod 0666 /data/misc/wminput/connected
 
+    # EDP attributes
+    write /sys/power/edp/battery/speaker/notify 1
+
 # USB Host enable
 on property:sys.boot_completed=1
     write /sys/devices/platform/tegra-otg/enable_host 1
     write /sys/bus/usb/devices/usb4/power/wakeup enabled
 
-    # increase idle_bottom_freq in order for LP core to get a more chance to run
-    write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/idle_bottom_freq 408000
-
-    write /sys/module/input_cfboost/parameters/boost_freq 1122000
-    write /sys/module/input_cfboost/parameters/boost_time 160
-
-    # decreasing cache
-    write /proc/sys/vm/vfs_cache_pressure 500
-    write /proc/sys/vm/dirty_background_ratio 5
+# CPU Boost: boost CPU on input events
+service input-cfboost /system/bin/input_cfboost_init.sh
+    class main
+    user root
+    group root
+    oneshot
 
 on property:ro.debuggable=1
     # EMC debug interface
     chmod 666 /sys/kernel/debug/tegra_emc/eack_state
-
-on property:testing.mediascanner.mft=1
-    mft
 
 service p2p_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
@@ -229,17 +187,10 @@ service wpa_supplicant /system/bin/wpa_supplicant \
     disabled
     oneshot
 
-service dns_masq /system/bin/dnsmasq --no-daemon --no-resolv --no-poll --dhcp-option-force=43,ANDROID_METERED --dhcp-range=192.168.42.2,192.168.42.254,1h &
-    class main
-    user dhcp
-    group dhcp wifi system
-    disabled
-    oneshot
-
-service dhcpcd_p2p_wlan0 /system/bin/dhcpcd p2p-wlan0-0
-    class main
-    disabled
-    oneshot
+# default chipset (currently bcm43241)
+on boot
+    write /proc/sys/net/core/wmem_default 262144
+    write /proc/sys/net/core/wmem_max 262144
 
 service dhcpcd_p2p_p2p0 /system/bin/dhcpcd p2p-p2p0-0
     class main
@@ -286,32 +237,6 @@ service iprenew_eth0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service cpuvoltcap /system/bin/nvcpuvoltcapd -a
-    class main
-    user system
-    group system
-
-service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
-    class late_start
-
-service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
-    class late_start
-    disabled
-
-service fuse_usbdrive1 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/usbdrive1 /storage/usbdrive1
-    class late_start
-    disabled
-
-service fuse_usbdrive2 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/usbdrive2 /storage/usbdrive2
-    class late_start
-    disabled
-
-# Prepare TF service
-import init.tf.rc
-
-# Set up HDCP
-import init.hdcp.rc
-
 # wbtmacwriter - to get wifi bt address from mft_data
 service wbtmiscwriter /system/bin/wbtmiscwriter.sh
     class main
@@ -319,5 +244,54 @@ service wbtmiscwriter /system/bin/wbtmiscwriter.sh
     group root
     oneshot
 
+on property:init.svc.hciattach=stopped
+    write /sys/devices/platform/reg-userspace-consumer.1/state disabled
+
+# Enable NvCpuD, and set it to never poll config again
+on boot
+    setprop nvcpud.enabled true
+    setprop nvcpud.config_refresh_ms -1
+
+service nvcpud /system/bin/nvcpud
+    class main
+    user system
+    group system
+    oneshot
+
+# create filesystems if necessary
+service setup_fs /system/bin/setup_fs \
+        /dev/block/platform/sdhci-tegra.3/by-name/UDA \
+        /dev/block/platform/sdhci-tegra.3/by-name/CAC
+    class core
+    user root
+    group root
+    oneshot
+
 # unified scaling setup
-import init.ussrd.rc
+service ussr_setup /system/bin/ussr_setup.sh
+    class main
+    user root
+    group root
+    oneshot
+
+# unified scaling process
+service ussrd /system/bin/ussrd
+    user system
+    group system
+    class main
+
+# unified scaling watchdog process
+service usdwatchdog /system/bin/usdwatchdog --wait 30
+    user system
+    group system
+    class main
+
+# start tf_daemon service
+service tf_daemon /system/bin/tf_daemon -storageDir /data/tf -d
+    class main
+    user root
+    group shell
+
+# may restart due to /data/tf not existing yet
+on property:init.svc.tf_daemon=restarting
+    mkdir /data/tf

@@ -14,16 +14,15 @@
 # limitations under the License.
 #
 
-
 # Device uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal
-PRODUCT_AAPT_PREF_CONFIG := tvdpi
+PRODUCT_AAPT_CONFIG := normal large xlarge hdpi xhdpi
+PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
 PRODUCT_IS_ATV := true
 
-# Boot Animation
-PRODUCT_COPY_FILES += \
-    device/madcatz/mojo/bootanimation.zip:system/media/bootanimation.zip
+# Boot animation
+TARGET_SCREEN_HEIGHT := 1080
+TARGET_SCREEN_WIDTH := 1920
 
 $(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk)
 
@@ -32,45 +31,15 @@ $(call inherit-product-if-exists, vendor/madcatz/mojo/mojo-vendor.mk)
 $(call inherit-product-if-exists, vendor/google/atv/atv-vendor.mk)
 
 # Overlay
-DEVICE_PACKAGE_OVERLAYS += device/madcatz/mojo/overlay
+DEVICE_PACKAGE_OVERLAYS += \
+    device/madcatz/mojo/overlay
 
-# Audio
+# Ramdisk
 PRODUCT_PACKAGES += \
-    audio.a2dp.default \
-    audio.r_submix.default \
-    audio.usb.default
-
-# Audio configuration
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/audio/audioConfig_qvoice_icera_pc400.xml:system/etc/audioConfig_qvoice_icera_pc400.xml \
-    $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
-    $(LOCAL_PATH)/audio/nvaudio_conf.xml:system/etc/nvaudio_conf.xml
-
-# Bluetooth
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
-
-# CPU volt cap daemon
-PRODUCT_PACKAGES += \
-    nvcpuvoltcapd
-
-# Codec Configs
-PRODUCT_COPY_FILES += \
-    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-    $(LOCAL_PATH)/media/media_codecs_performance.xml:system/etc/media_codecs_performance.xml \
-    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
-    $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml
-
-PRODUCT_PROPERTY_OVERRIDES += ro.hdmi.device_type=4
-
-# DRM
-PRODUCT_PROPERTY_OVERRIDES += \
-    drm.service.enabled=true \
-    ro.com.widevine.cachesize=16777216
-
-# Misc
-PRODUCT_CHARACTERISTICS := tv
+    fstab.mojo \
+    init.mojo.rc \
+    init.mojo.usb.rc \
+    ueventd.mojo.rc
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -89,25 +58,81 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/permissions/tv_core_hardware.xml:system/etc/permissions/tv_core_hardware.xml \
     frameworks/native/data/etc/android.software.app_widgets.xml:system/etc/permissions/android.software.app_widgets.xml
 
-# Ramdisk
+# Audio
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/audio/audioConfig_qvoice_icera_pc400.xml:system/etc/audioConfig_qvoice_icera_pc400.xml \
+    $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/audio/nvaudio_conf.xml:system/etc/nvaudio_conf.xml
+
 PRODUCT_PACKAGES += \
-    fstab.mojo \
-    init.mojo.rc \
-    init.mojo.usb.rc \
-    init.tf.rc \
-    init.ussrd.rc \
-    power.mojo.rc \
-    ueventd.mojo.rc
+    audio.a2dp.default \
+    audio.r_submix.default \
+    audio.usb.default
+
+# Bluetooth
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
+
+# Media config
+PRODUCT_COPY_FILES += \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/media/media_codecs_performance.xml:system/etc/media_codecs_performance.xml \
+    $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml
+
+# M.O.J.O.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/permissions/mojo_hardware.xml:system/etc/permissions/mojo_hardware.xml
+
+# NVIDIA
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/permissions/com.nvidia.nvsi.xml:system/etc/permissions/com.nvidia.nvsi.xml
+
+PRODUCT_PACKAGES += \
+    dhcpcd.conf \
+    hostapd \
+    wpa_supplicant \
+    wpa_supplicant.conf
+
+PRODUCT_CHARACTERISTICS := tv
+
+PRODUCT_TAGS += dalvik.gc.type-precise
+
+# HDMI
+PRODUCT_PROPERTY_OVERRIDES += ro.hdmi.device_type=4
 
 # Adb over TCP
 PRODUCT_PROPERTY_OVERRIDES += \
     service.adb.tcp.port=5555
 
-# Debugging
-ADDITIONAL_DEFAULT_PROPERTIES += \
-    ro.adb.secure=0 \
-    ro.secure=0 \
-    ro.debuggable=1
+PRODUCT_PACKAGES += \
+    com.android.future.usb.accessory
+
+# Enable Widevine drm
+PRODUCT_PROPERTY_OVERRIDES += \
+    drm.service.enabled=true \
+    ro.com.widevine.cachesize=16777216
+
+# Filesystem management tools
+PRODUCT_PACKAGES += \
+    setup_fs
+
+# Power
+PRODUCT_PACKAGES += \
+    power.tegra
+
+# Shim
+PRODUCT_PACKAGES += \
+    libshim_vectorimpl
+
+# Stlport
+PRODUCT_PACKAGES += \
+    libstlport \
+
+# EGL
+PRODUCT_PACKAGES += \
+    libdgv1
 
 # TV-specific Apps/Packages
 PRODUCT_PACKAGES += \
@@ -117,16 +142,4 @@ PRODUCT_PACKAGES += \
     TvSettings \
     tv_input.default
 
-# USB
-PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory
-
-# Wifi
-PRODUCT_PACKAGES += \
-    dhcpcd.conf \
-    hostapd \
-    wpa_supplicant \
-    wpa_supplicant.conf
-
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/config/config-bcm.mk)
-

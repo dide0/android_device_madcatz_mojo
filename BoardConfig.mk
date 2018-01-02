@@ -17,6 +17,8 @@
 # This variable is set first, so it can be overridden
 # by BoardConfigVendor.mk
 
+TARGET_SPECIFIC_HEADER_PATH := device/madcatz/mojo/include
+
 # Architecture
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
@@ -28,15 +30,18 @@ TARGET_CPU_VARIANT := cortex-a15
 TARGET_BOARD_PLATFORM := tegra
 TARGET_BOOTLOADER_BOARD_NAME := mojo
 TARGET_NO_BOOTLOADER := true
+TARGET_TEGRA_VERSION := t114
 
 # Kernel
 BOARD_KERNEL_CMDLINE := androidboot.hardware=mojo androidboot.selinux=permissive smsc95xx.boot_wol_config=0x07 smsc95xx.turbo_mode=N
 TARGET_KERNEL_SOURCE := kernel/madcatz/mojo
-TARGET_KERNEL_CONFIG := cyanogenmod_mojo_defconfig
+TARGET_KERNEL_CONFIG := lineageos_mojo_defconfig
 
 # Audio
+BOARD_USES_ALSA_AUDIO := true
 BOARD_HAVE_PRE_KITKAT_AUDIO_BLOB := true
 BOARD_HAVE_PRE_KITKAT_AUDIO_POLICY_BLOB := true
+TARGET_TINY_ALSA_IGNORE_SILENCE_SIZE := true
 USE_LEGACY_AUDIO_POLICY := 1
 
 # Bluetooth
@@ -48,6 +53,7 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/madcatz/mojo/bluetooth
 USE_OPENGL_RENDERER := true
 SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
 VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
+COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
 
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
@@ -60,14 +66,29 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 805306368
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 14042529792
 BOARD_FLASH_BLOCK_SIZE := 4096
 
+# Power
+TARGET_POWERHAL_VARIANT := tegra
+
 # Pre-kitkat blob support
 TARGET_RELEASE_CPPFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # Recovery
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
-BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_23x41.h\"
-TARGET_RECOVERY_DEVICE_DIRS += device/madcatz/mojo
 TARGET_RECOVERY_FSTAB := device/madcatz/mojo/rootdir/etc/fstab.mojo
+TARGET_RECOVERY_DEVICE_DIRS += device/madcatz/mojo
+# TWRP (being included with the stuff in "Recovery")
+TW_THEME := landscape_hdpi
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+RECOVERY_SDCARD_ON_DATA := true
+TW_NO_SCREEN_TIMEOUT := true
+TW_NO_CPU_TEMP := true
+TW_BRIGHTNESS_PATH := "brightness"
+TW_NO_BATT_PERCENT := true
+TW_USE_TOOLBOX := true
+
+# SELinux
+BOARD_SEPOLICY_DIRS += \
+    device/madcatz/mojo/sepolicy
 
 # Wifi related defines
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
@@ -81,17 +102,3 @@ WIFI_DRIVER_FW_PATH_AP           := "/system/vendor/firmware/bcm43241/fw_bcmdhd_
 WIFI_DRIVER_FW_PATH_STA          := "/system/vendor/firmware/bcm43241/fw_bcmdhd.bin"
 
 MALLOC_IMPL := dlmalloc
-
-# SELinux
-#BOARD_SEPOLICY_DIRS := device/madcatz/mojo/sepolicy/
-#BOARD_SEPOLICY_UNION := \
-
-# TWRP
-TW_THEME := landscape_hdpi
-BOARD_HAS_NO_REAL_SDCARD := true
-RECOVERY_GRAPHICS_USE_LINELENGTH := true
-RECOVERY_SDCARD_ON_DATA := true
-TW_BRIGHTNESS_PATH := "/brightness"
-TW_EXCLUDE_SUPERSU := true
-TW_NO_SCREEN_TIMEOUT := true
-TW_NO_CPU_TEMP := true
